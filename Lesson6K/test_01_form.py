@@ -60,14 +60,13 @@ def test_01_form(driver):
     # Нажатие на кнопку
     driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
 
-    # Проверка красного поля
-    alert_danger_color = "rgba(248, 215, 218, 1)"
-    color_zip = zip_code.value_of_css_property("background-color")
-    assert color_zip == alert_danger_color, f"Expected {alert_danger_color}, but got {color_zip}"
-
-    # Проверка зеленого поля
-    alert_success_color = "rgba(209, 231, 221, 1)"
-    fields = [first_name, last_name, address, email, phone_number, city, country, job_position, company]
-    for field in fields:
-        field_color = field.value_of_css_property("background-color")
-        assert field_color == alert_success_color, f"Expected {alert_success_color} for {field.get_attribute('name')}, but got {field_color}"
+    assert "danger" in driver.find_element(By.ID, "zip-code").get_attribute("class")
+    assert "success" in driver.find_element(By.ID, "first-name").get_attribute("class")
+    assert "success" in driver.find_element(By.ID, "last-name").get_attribute("class")
+    assert "success" in driver.find_element(By.ID, "address").get_attribute("class")
+    assert "success" in driver.find_element(By.ID, "e-mail").get_attribute("class")
+    assert "success" in driver.find_element(By.ID, "phone").get_attribute("class")
+    assert "success" in driver.find_element(By.ID, "city").get_attribute("class")
+    assert "success" in driver.find_element(By.ID, "country").get_attribute("class")
+    assert "success" in driver.find_element(By.ID, "job-position").get_attribute("class")
+    assert "success" in driver.find_element(By.ID, "company").get_attribute("class")

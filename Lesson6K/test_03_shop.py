@@ -6,27 +6,28 @@ from selenium.webdriver.common.by import By
 
 # Фикстура для создания WebDriver
 @pytest.fixture
-def driver():
-    driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
+def chrome_browser():
+    driver = webdriver.Chrome()
     yield driver
     driver.quit()
 
-# Тест
-def test_01_form(driver):
-    driver.get("https://www.saucedemo.com/")
+def test_shop_form(chrome_browser):
+    chrome_browser.get("https://www.saucedemo.com/")
+    chrome_browser.find_element(By.ID, "user-name").send_keys("standard_user")
+    chrome_browser.find_element(By.ID, "password").send_keys("secret_sauce")
+    chrome_browser.find_element(By.ID, "login-button").click()
+    chrome_browser.find_element(By.ID, "add-to-cart-sauce-labs-backpack").click()
+    chrome_browser.find_element(By.ID, "add-to-cart-sauce-labs-bolt-t-shirt").click()
+    chrome_browser.find_element(By.ID, "add-to-cart-sauce-labs-onesie").click()
+    chrome_browser.find_element(By.ID, "shopping_cart_container").click()
+    chrome_browser.find_element(By.ID, "checkout").click()
+    chrome_browser.find_element(By.ID, "first-name").send_keys("Test")
+    chrome_browser.find_element(By.ID, "last-name").send_keys("Test")
+    chrome_browser.find_element(By.ID, "postal-code").send_keys("601500")
+    chrome_browser.find_element(By.ID, "continue").click()
+    total_price = chrome_browser.find_element(By.CLASS_NAME, 'summary_total_label')
+    total = total_price.text.strip().replace("Total: $", "")
 
-first_name = driver.find_element(By.CSS_SELECTOR, '#firstName')
-first_name.send_keys("Regina")
-
-last_name = driver.find_element(By.CSS_SELECTOR, '#lastName')
-last_name.send_keys("Faizova")
-
-postal_code = driver.find_element(By.CSS_SELECTOR, "#postal-code")
-postal_code.send_keys('420047')
-
-driver.find_element(By.CSS_SELECTOR, "#continue").click()
-
-
-total_price = driver.find_element(By.CSS_SELECTOR, "div.summary_total_label").text
-
-print(total_price)
+    expected_total = "58.29"
+    assert total == expected_total  # Проверяем, что итоговая сумма равна $58.29
+    print(f"Итоговая сумма равна ${total}")
