@@ -1,7 +1,7 @@
 import os
-from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String
 from sqlalchemy.orm import sessionmaker
 import pytest
+from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, insert, select
 
 
 @pytest.fixture(scope="module")
@@ -63,6 +63,25 @@ def test_update_student(session):
         Column('education_form', String),
         Column('subject_id', Integer),
     )
+    new_student = {
+        "user_id": 1,
+        "level": "Undergraduate",
+        "education_form": "Full-time",
+        "subject_id": 101,
+    }
+
+
+    # Выполняем вставку данных
+    insert_stmt = insert(student_table).values(new_student)
+    session.execute(insert_stmt)
+
+    # Проверяем, что данные успешно добавлены
+    select_stmt = select(student_table).where(student_table.c.user_id == new_student["user_id"])
+    result = session.execute(select_stmt).fetchone()
+
+    # Ассерт: проверяем, что результат не None и данные совпадают
+    assert result is not None, "Студент не был добавлен в таблицу."
+
 
     update_data = {'user_id': 11548, 'level': 'Advanced'}
     update_stmt = (
@@ -91,15 +110,31 @@ def test_update_student(session):
 
 
 def test_delete_teacher(session):
-    teacher_table = Table(
-        'teacher',
-        MetaData(),
-        Column('teacher_id', Integer, primary_key=True),
-        Column('email', String),
-        Column('group_id', Integer),
-    )
+        teacher_table = Table(
+            'teacher',
+            MetaData(),
+            Column('teacher_id', Integer, primary_key=True),
+            Column('email', String),
+            Column('group_id', Integer),
+        )
 
-    delete_data = {"teacher_id": 29971}
-    delete_stmt = teacher_table.delete().where(
-        teacher_table.c.teacher_id == delete_data["teacher_id"]
-    )
+        new_teacher_data = {"email": "test_teacher@example.com", "group_id": 123}
+        insert_stmt = insert(teacher_table).values(new_teacher_data)
+        result = session.execute(insert_stmt)
+
+        # Получаем ID созданного учителя
+        created_teacher_id = result.scalar()
+
+        delete_data = {"teacher_id": created_teacher_id}
+        delete_stmt = teacher_table.delete().where(
+            teacher_table.c.teacher_id == delete_data["teacher_id"])
+        result = session.execute(delete_stmt)
+
+        select_stmt = teacher_table.select().where(
+            teacher_table.c.teacher_id == delete_data["teacher_id"]
+        )
+        result = session.execute(select_stmt).fetchone()
+
+        # Ассерт: запись должна быть None
+        assert result is None, f"Учитель с ID {delete_data['teacher_id']} все еще существует!"
+        print("Учитель успешно удален.")
