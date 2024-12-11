@@ -1,13 +1,16 @@
+import allure
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 class MainPage:
+    @allure.step('Открытие страницы формы по URL {url}')
     def __init__(self, driver):
         self._driver = driver
         self._driver.get('https://bonigarcia.dev/selenium-webdriver-java/data-types.html')
         self._driver.implicitly_wait(10)
         self._driver.maximize_window()
 
+    @allure.step('Заполнение формы значениями: {first-name}, {last-name}, {address}, {zip_code}, {city}, {country}, {e-mail}, {phone}, {job-position}, {company}')
     def input_first(self, term):
         self._driver.find_element(By.CSS_SELECTOR, 'input[name=first-name]').send_keys(term)
     def input_last(self, term):
@@ -31,9 +34,6 @@ class MainPage:
         self._driver.find_element(
             By.CSS_SELECTOR, 'button.btn.btn-outline-primary.mt-3').click()
 
-    def check_field(self, param):
-        pass
-
-
-def check_field(self, field):
+    @allure.step('Проверка результата')
+    def check_field(self, field):
         return self._driver.find_element(By.ID, field).get_attribute("class")
